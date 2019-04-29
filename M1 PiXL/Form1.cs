@@ -147,6 +147,7 @@ namespace M1_PiXL
                             //M1EMAIL.SendEmail(CurrentClientInfo.Email, new string[] { EmailSendCC }, EmailSendFrom, "Nightly Order Processed for PiXL: " + PiXLAlias, RecordCount.ToString() + " Records delivered. ", "");
                             //M1EMAIL.SendEmail("techteam@m1-data.com", new string[] { EmailSendCC }, EmailSendFrom, "Nightly Order Processed for PiXL: " + PiXLAlias, EmailBody, string.Empty, true);
 
+                            //M1EMAIL.SendEmail("bgluckman@m1-data.com", new string[] { EmailSendCC }, EmailSendFrom, "Nightly Order Processed for PiXL: " + PiXLAlias, EmailBody, string.Empty, true);
                             //M1EMAIL.SendEmail(CurrentClientInfo.Email, new string[] { EmailSendCC }, EmailSendFrom, "Nightly Order Processed for PiXL: " + PiXLAlias, EmailBody, string.Empty, true);
                         }
                     }
@@ -201,6 +202,7 @@ namespace M1_PiXL
         {
             int Rownumber = 1;
             int Colnumber = 1;
+            List<string> RecordIDList = new List<string>();
 
             IXLWorksheet worksheet = workbook.AddWorksheet(WorksheetName);
 
@@ -220,9 +222,12 @@ namespace M1_PiXL
                     //workbook.Worksheets.ToList()[0].Cell(Rownumber, c + 1).Value = row[c].ToString();
                 }
 
+                RecordIDList.Add(row[table.Columns.Count - 2].ToString());
+
                 Rownumber++;
             }
-            return Rownumber;
+            //return Rownumber;
+            return RecordIDList.Distinct().Count();
         }
     }
 }
