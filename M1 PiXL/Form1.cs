@@ -56,7 +56,7 @@ namespace M1_PiXL
             M1SQL = new M1_SQL(
             //ConfigurationManager.AppSettings["SQLUser"].ToString(),
             //ConfigurationManager.AppSettings["SQLPassword"].ToString(),
-            "bgluckman", "Iruelakk2@",
+            "", "",
             ConfigurationManager.AppSettings["SQLServer"].ToString(),
             ConfigurationManager.AppSettings["SQLDatabase"].ToString()
             );
@@ -74,7 +74,7 @@ namespace M1_PiXL
             string outFolderNew = string.Empty;
             string PiXLAlias = string.Empty;
             string Line = string.Empty;
-            XLWorkbook workbook;
+            //XLWorkbook workbook;
             int RecordCount = 0;
 
             //XLWorkbook workbook = new XLWorkbook();
@@ -102,7 +102,7 @@ namespace M1_PiXL
                             outFolderLegacy = CurrentClientInfo.OutputPathLegacy + CurrentClientInfo.OutputPathLegacy.Split('\\')[4] + DateTime.Now.AddDays(-DayToProcess + 1).ToString("_yyyy_MM_dd") + ".xlsx";
                             outFolderNew = CurrentClientInfo.OutputPathNew + CurrentClientInfo.OutputPathNew.Split('\\')[4] + DateTime.Now.AddDays(-DayToProcess + 1).ToString("_yyyy_MM_dd") + ".xlsx";
 
-                            workbook = new XLWorkbook();
+                            XLWorkbook workbook = new XLWorkbook(XLEventTracking.Disabled);
 
                             //using (DataTable PiXLRecords = M1SQL.SQLGetDataFromStoredProcedure(GetPiXLRecords_Stored_Procedure, new List<M1_SQL.SQLParameterMap> {
                             //new M1_SQL.SQLParameterMap ("@Reseller", CurrentClientInfo.Reseller),
@@ -138,9 +138,15 @@ namespace M1_PiXL
                             //new M1_SQL.SQLParameterMap ("@DaysToProcess", "1")}))
                             //    WritePiXLRecords(workbook, Unmatched, "UnMatched Records");
 
-                            RecordCount = WritePiXLRecordsXLSX(workbook, PiXLResults, "records");
+
+                            //HomeAdvisor needs the email with counts
+                            RecordCount = WritePiXLRecordsXLSX(ref workbook, PiXLResults, "records");
                             workbook.SaveAs(outFolderLegacy);
                             workbook.SaveAs(outFolderNew);
+                            workbook.Dispose();
+                            GC.Collect();
+                            GC.WaitForPendingFinalizers();
+                            GC.Collect();
 
                             string EmailBody = PopulateBody(CurrentClientInfo.CompanyID, CurrentClientInfo.PiXLID, PiXLAlias, RecordCount.ToString());
 
@@ -198,7 +204,7 @@ namespace M1_PiXL
             }
         }
 
-        int WritePiXLRecordsXLSX(XLWorkbook workbook, DataTable table, string WorksheetName)
+        int WritePiXLRecordsXLSX(ref XLWorkbook workbook, DataTable table, string WorksheetName)
         {
             int Rownumber = 1;
             int Colnumber = 1;
